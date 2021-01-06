@@ -1,45 +1,25 @@
 import React from 'react';
-import PropTypes from "prop-types";
+import axios from 'axios';
+import Movie from "./Movie";
 
-const foodILike = [
-  {
-    id: 1,
-  name: "Steak",
-  image : "https://www.google.com/search?q=steak.jpg&rlz=1C5CHFA_enKR919KR919&sxsrf=ALeKk022k6Q_BmQd4rgWFXIwUDunct7iww:1609784826102&tbm=isch&source=iu&ictx=1&fir=CqYdGQXM3EfPNM%252C8ruPAmqMDuQY0M%252C_&vet=1&usg=AI4_-kTmrKM4y0CY3vHsGoAGJ5MpIjJ5Vg&sa=X&ved=2ahUKEwjmwuXl84LuAhUpw4sBHdOzD1wQ9QF6BAgFEAE#imgrc=CqYdGQXM3EfPNM",
-
-},
-{
-  id:2,
-  name: "bread",
-  image : "https://www.google.com/search?q=bread.jpg&rlz=1C5CHFA_enKR919KR919&sxsrf=ALeKk02lsFpOZQHjjK2ni-p6YFOILr5hfA:1609784841612&tbm=isch&source=iu&ictx=1&fir=HqFVaFy4rvO4gM%252CZmUKYpVXy-MzsM%252C_&vet=1&usg=AI4_-kRWEnwWNBXOWC_uH_MMXNJHSLZPoQ&sa=X&ved=2ahUKEwipm5jt84LuAhWRGqYKHVeBBYgQ9QF6BAgHEAE#imgrc=HqFVaFy4rvO4gM",
-  rating: 4.5
-}
-]
-
-
-function Food({name, picture, rating}) {
-  return (
-  <div>
-    <h2>I love {name}</h2>
-    <h4> {rating}/5.0</h4>
-    <img src= {picture} alt={name}/>
-  </div>
-  );
-}
-
-Food.propTypes = {
-  name: PropTypes.string.isRequired,
-  picture: PropTypes.string.isRequired,
-  rating: PropTypes.number
-};
-
-
-function App() {
-  return (
-    <div>
-      {foodILike.map(item => (<Food key={item.id} name={item.name} picture={item.image} rating={item.rating} />))}
-    </div>
-  );
+class App extends React.Component{
+  state = {
+    isLoading: true,
+    movies: []
+  }
+  getMovies = async() => {
+    const {data:{data:{movies}}} = await axios.get("https://yts-proxy.now.sh/list_movies.json?sort_by=rating")
+    this.setState({movies, isLoading: false})
+  }
+  componentDidMount(){
+    this.getMovies()
+  }
+  render(){
+    const {isLoading, movies} = this.state;
+    return <div>{isLoading ? "Loading" : movies.map(movie =>{
+      return <Movie key={movie.id} id={movie.id} year={movie.year} title={movie.title} summary={movie.summary} poster={movie.medium_cover_image}/>
+    })}</div>
+  }
 }
 
 export default App;
